@@ -19,6 +19,7 @@ class FileSender(threading.Thread):
 		self.url = paras[6]
 		self.apiKey = paras[7]
 		self.interval = paras[8]
+		self.workingDir = paras[9]
 		self.name = name
 
 	def run(self):
@@ -29,7 +30,7 @@ class FileSender(threading.Thread):
 			items = tmp.split(',', 1)
 			hashValue = items[0]
 			fileNames = items[1]
-			fileName = 'working/%s' % fileNames[1]
+			fileName = '%s/%s' % (self.workingDir, fileNames[1])
 			
 			fields = [('apikey', self.apiKey)]
 

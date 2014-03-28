@@ -4,3 +4,5 @@ fileUrl = https://www.virustotal.com/vtapi/v2/file/scan
 scanUrl = https://www.virustotal.com/vtapi/v2/file/report
 apiKey = d127e6db159b0dfebc5fc34dfbe85456f36699e6b4d441b59b58c5e917a05c54
 interval = 30.0
+watchDir = watch
+workingDir = working

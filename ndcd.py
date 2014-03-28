@@ -16,11 +16,6 @@ def ndcd_loop():
 	os.environ['TZ'] = 'Asia/Shanghai'
 	time.tzset()
 
-	if not os.path.exists('watch'):
-		os.mkdir('watch')
-	if not os.path.exists('working'):
-		os.mkdir('working')
-
 	logger = Logger('LOGPRINT')
 	logger.logger('Initiating')
 
@@ -33,6 +28,13 @@ def ndcd_loop():
 	scanUrl = cf.get('conf', 'scanUrl')
 	apiKey = cf.get('conf', 'apiKey')
 	interval = float(cf.get('conf', 'interval'))
+	watchDir = cf.get('conf', 'watchDir')
+	workingDir = cf.get('conf', 'workingDir')
+
+	if not os.path.exists(watchDir):
+		os.mkdir(watchDir)
+	if not os.path.exists(workingDir):
+		os.mkdir(workingDir)
 
 	fsQueue = Queue()
 	fsLock = threading.Lock()
@@ -40,28 +42,28 @@ def ndcd_loop():
 	sfLock = threading.Lock()
 
 	logger.logger('Starting Threads')
-	fileSender = FileSender([logger, fsQueue, fsLock, sfQueue, sfLock, host, fileUrl, apiKey, interval], 'FileSender')
-	scanSender = ScanSender([logger, fsQueue, fsLock, sfQueue, sfLock, host, scanUrl, apiKey, interval], 'ScanSender')
+	fileSender = FileSender([logger, fsQueue, fsLock, sfQueue, sfLock, host, fileUrl, apiKey, interval, workingDir], 'FileSender')
+	scanSender = ScanSender([logger, fsQueue, fsLock, sfQueue, sfLock, host, scanUrl, apiKey, interval, workingDir], 'ScanSender')
 
 	fileSender.start()
 	scanSender.start()
 
 	while True:
-		logger.logger('Walking DIR:watch')
-		watchDir = os.walk('watch')
-		for root, dirs, files in watchDir:
+		logger.logger('Walking DIR:%s' % watchDir)
+		watchDirHandle = os.walk(watchDir)
+		for root, dirs, files in watchDirHandle:
 			for oneFile in files:
 				if oneFile[-4:] == '.apk':
 					logger.logger('Found File: %s' % oneFile)
 
 					m = hashlib.md5()
-					fileHandle = open('watch/%s' % oneFile, 'rb')
+					fileHandle = open('%s/%s' % (watchDir, oneFile), 'rb')
 					m.update(fileHandle.read())
 					hashValue = m.hexdigest()
 					fileHandle.close()
 
-					newFile = 'working/%s' % oneFile
-					oldFile = 'watch/%s' % oneFile
+					newFile = '%s/%s' % (workingDir, oneFile)
+					oldFile = '%s/%s' % (watchDir, oneFile)
 					#newFile = oldFile
 
 					shutil.move(oldFile, newFile)

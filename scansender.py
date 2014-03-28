@@ -20,6 +20,7 @@ class ScanSender(threading.Thread):
 		self.url = paras[6]
 		self.apiKey = paras[7]
 		self.interval = paras[8]
+		self.workingDir = paras[9]
 		self.name = name
 
 	def run(self):
