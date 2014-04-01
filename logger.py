@@ -4,19 +4,12 @@ from datetime import *
 import time
 import os
 import threading
+import socket
 
 class Logger():
-	def __init__(self, logMode):
-		LOG_FILE = 'log.log'
-		self.logFile = open(LOG_FILE, 'w')
-
-		if logMode in ['LOGONLY', 'LOGPRINT']:
-			if logMode == 'LOGONLY':
-				self.logPrint = False
-			elif logMode == 'LOGPRINT':
-				self.logPrint = True
-		else:
-			self.logPrint = False
+	def __init__(self, port):
+		self.address = ('127.0.0.1', port)
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 		#multithread
 		self.lock = threading.Lock()
@@ -26,12 +19,8 @@ class Logger():
 		self.lock.acquire()
 		curTime = datetime.now()
 
-		finalMsg = '[MSG] ' + curTime.strftime('%Y-%m-%d %H:%M:%S') + ' nDroid-CD: %s' % msg
+		finalMsg = '[MSG] ' + curTime.strftime('%Y-%m-%d %H:%M:%S') + ' nDroid-Storage: %s' % msg
 
-		#std
-		if self.logPrint:
-			print finalMsg
+		self.s.sendto(finalMsg, self.address)
 
-		#log file
-		self.logFile.write(finalMsg + '\n')
 		self.lock.release()

@@ -16,7 +16,7 @@ def ndcd_loop():
 	os.environ['TZ'] = 'Asia/Shanghai'
 	time.tzset()
 
-	logger = Logger('LOGPRINT')
+	logger = Logger(12322)
 	logger.logger('Initiating')
 
 	logger.logger('Loading Config')
