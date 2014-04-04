@@ -7,6 +7,7 @@ import urllib
 import urllib2
 from logger import Logger
 import time
+from dbmanager import DbManager
 
 class ScanSender(threading.Thread):
 	def __init__(self, paras, name):
@@ -20,7 +21,7 @@ class ScanSender(threading.Thread):
 		self.url = paras[6]
 		self.apiKey = paras[7]
 		self.interval = paras[8]
-		self.workingDir = paras[9]
+		self.dbManager = paras[9]
 		self.name = name
 
 	def run(self):
@@ -40,14 +41,20 @@ class ScanSender(threading.Thread):
 
 			result = json.loads(response.read())
 
-			if result['response_code'] == 0 or result['response_code'] == -1:
+			if result['response_code'] == -1:
 				self.logger.logger('Operation ERROR')
+				self.fsLock.acquire()
+				self.fsQueue.put(tmp, 1)
+				self.fsLock.release()
+			if result['response_code'] == 0:
+				self.logger.logger('Not in the DATASTORE')
 				self.sfLock.acquire()
 				self.sfQueue.put(tmp, 1)
 				self.sfLock.release()
 			if result['response_code'] == 1:
 				self.logger.logger('Operation OK')
-				self.logger.logger('%d / %d : %s is POSITIVE' % (result['positives'], result['total'], items[1]))
+				self.logger.logger('%d / %d : %s is POSITIVE' % (result['positives'], result['total'], hashValue))
+				self.dbManager.update(hashValue, '%d/%d' % (result['positives'], result['total']))
 
 			time.sleep(self.interval)
 

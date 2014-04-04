@@ -7,8 +7,9 @@ import threading
 import socket
 
 class Logger():
-	def __init__(self, port):
-		self.address = ('127.0.0.1', port)
+	def __init__(self, name, host, port):
+		self.name = name
+		self.address = (host, port)
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 		#multithread
@@ -17,10 +18,8 @@ class Logger():
 
 	def logger(self, msg):
 		self.lock.acquire()
-		curTime = datetime.now()
 
-		finalMsg = '[MSG] ' + curTime.strftime('%Y-%m-%d %H:%M:%S') + ' nDroid-Storage: %s' % msg
-
+		finalMsg = '%s : %s' % (self.name, msg)
 		self.s.sendto(finalMsg, self.address)
 
 		self.lock.release()

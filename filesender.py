@@ -19,7 +19,6 @@ class FileSender(threading.Thread):
 		self.url = paras[6]
 		self.apiKey = paras[7]
 		self.interval = paras[8]
-		self.workingDir = paras[9]
 		self.name = name
 
 	def run(self):
@@ -29,18 +28,17 @@ class FileSender(threading.Thread):
 			tmp = self.sfQueue.get(1)
 			items = tmp.split(',', 1)
 			hashValue = items[0]
-			fileNames = items[1]
-			fileName = '%s/%s' % (self.workingDir, fileNames[1])
+			fileName = items[1]
 			
 			fields = [('apikey', self.apiKey)]
 
 			fileData = open(fileName, 'rb').read()
 			files = [('file', 'sample.apk', fileData)]
 
-			self.logger.logger('Sending File %s to Scan' % fileNames)
+			self.logger.logger('Sending File %s to Scan' % fileName)
 			response = postfile.post_multipart(self.host, self.url, fields, files)
 			result = json.loads(response)
-			if result['response_code'] == -1 or result['response_code'] == 0:
+			if result['response_code'] == 0 or result['response_code'] == -1:
 				self.logger.logger('Operation ERROR')
 				self.sfLock.acquire()
 				self.sfQueue.put(tmp, 1)
