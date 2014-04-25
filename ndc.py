@@ -51,8 +51,8 @@ def ndc_loop():
 	logger.logger('Listening Com Port')
 	reactor.run()
 
-	scanSender.join()
-	fileSender.join()
+	#scanSender.join()
+	#fileSender.join()
 
 
 if __name__ == '__main__':

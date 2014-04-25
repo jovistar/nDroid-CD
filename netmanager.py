@@ -11,11 +11,9 @@ from Queue import Queue
 import threading
 
 class NetManager(DatagramProtocol):
-	def __init__(self):
-		self.msgManager = MsgManager()
-
 	def setNdlCom(self, logger):
 		self.logger = logger
+		self.msgManager = MsgManager()
 
 	def setDbManager(self, dbManager):
 		self.dbManager = dbManager

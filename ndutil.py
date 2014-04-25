@@ -29,6 +29,8 @@ def getCreated():
 	return curTime.strftime('%Y-%m-%d %H:%M:%S')
 
 def getAbstractPath(path):
+	if os.path.isabs(path):
+		return path
 	return os.path.abspath(path)
 
 def enableDir(path):
