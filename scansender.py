@@ -34,7 +34,7 @@ class ScanSender(threading.Thread):
 			hashValue = items[0]
 			paras = {'resource': hashValue, 'apikey': self.apiKey}
 
-			self.logger.logger('Trying to Get Scan Result')
+			self.logger.logger('Scan Result')
 			data = urllib.urlencode(paras)
 			request = urllib2.Request(self.url, data)
 			response = urllib2.urlopen(request)

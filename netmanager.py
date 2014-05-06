@@ -39,21 +39,25 @@ class NetManager(DatagramProtocol):
 				else:
 					hashval = ndutil.getMd5(result['path'])
 					reqTime = ndutil.getCreated()
+					fileSize = ndutil.getSize(result['path'])
 
-					scanCode, scanResult = self.dbManager.scan(reqTime, result['path'], hashval)
-					if scanCode == 0:
-						responseData['response'] = 0
-						nums = scanResult.split('/', 1)
-						responseData['hashval'] = hashval
-						responseData['positive'] = nums[0]
-						responseData['total'] = nums[1]
-					if scanCode == 1:
-						responseData['response'] = 2
-					if scanCode == 2:
-						responseData['response'] = 2
-						self.fsLock.acquire()
-						self.fsQueue.put('%s,%s' % (hashval, result['path']), 1)
-						self.fsLock.release()
+					if (fileSize/1024/1024) >= 32:
+						responseData['response'] = 1
+					else:
+						scanCode, scanResult = self.dbManager.scan(reqTime, result['path'], hashval)
+						if scanCode == 0:
+							responseData['response'] = 0
+							nums = scanResult.split('/', 1)
+							responseData['hashval'] = hashval
+							responseData['positive'] = nums[0]
+							responseData['total'] = nums[1]
+						if scanCode == 1:
+							responseData['response'] = 2
+						if scanCode == 2:
+							responseData['response'] = 2
+							self.fsLock.acquire()
+							self.fsQueue.put('%s,%s' % (hashval, result['path']), 1)
+							self.fsLock.release()
 
 			msg = self.msgManager.genResponse(responseData)
 			self.transport.write(msg, (host, port))

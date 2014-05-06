@@ -39,6 +39,7 @@ class FileSender(threading.Thread):
 			response = postfile.post_multipart(self.host, self.url, fields, files)
 			result = json.loads(response)
 			if result['response_code'] == 0 or result['response_code'] == -1:
+				print response
 				self.logger.logger('Operation ERROR')
 				self.sfLock.acquire()
 				self.sfQueue.put(tmp, 1)
